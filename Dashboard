@@ -1,0 +1,84 @@
+import streamlit as st
+import numpy as np
+import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import pandas as pd
+
+offense = pd.read_csv("/work/Hitting Data.csv")
+offense.set_index('Team',inplace=True)
+
+def main():
+    df = offense
+    st.title("MLB Statistics Deep Dive")
+    st.header("Sean McLouglin and Katherine Noftall")
+    st.write("Let's checkout the teams' stats!")
+st.sidebar.header("Select your Team:")
+view = st.sidebar.selectbox("Which view would you like to see?",
+                                ("Arizona Diamondbacks", "Atlanta Braves", "Baltimore Orioles", "Boston Red Sox", "Chicago Cubs", "Chicago White Sox", "Cincinnati Reds", "Cleveland Indians", "Colorado Rockies", "Detroit Tigers", "Houston Astros", "Kansas City", "Los Angeles Angles", "Los Angeles Dodgers", "Miami Marlins", "Milwaukee Brewers", "Minnesota Twins", "New York Yankees", "New York Mets", "Oakland Athletics", "Philadelphia Phillies", "Pittsburgh Pirates", "San Diego Padres", "San Francisco Giants", "Seattle Mariners", "St. Louis Cardinals", "Tampa Bay Rays", "Texas Rangers", "Toronto Blue Jays", "Washington Nationals"))
+
+if view == "Arizona Diamondbacks":
+       st.dataframe(offense.loc['Arizona Diamondbacks'])
+elif view == "Atlanta Braves":
+       st.dataframe(offense.loc['Atlanta Braves'])
+elif view == "Baltimore Orioles":
+       st.dataframe(offense.loc['Baltimore Orioles'])
+elif view == "Boston Red Sox":
+        st.dataframe(offense.loc['Boston Red Sox'])
+elif view == "Chicago White Sox":
+        st.dataframe(offense.loc['Chicago White Sox'])
+elif view == "Chicago Cubs":
+        st.dataframe(offense.loc['Chicago Cubs'])
+elif view == "Cincinnati Reds":
+        st.dataframe(offense.loc['Cincinnati Reds'])
+elif view == "Cleveland Indians":
+        st.dataframe(offense.loc['Cleveland Indians'])
+elif view == "Colorado Rockies":
+        st.dataframe(offense.loc['Colorado Rockies'])
+elif view == "Detroit Tigers":
+        st.dataframe(offense.loc['Detroit Tigers'])
+elif view == "Houston Astros":
+        st.dataframe(offense.loc['Houston Astros'])
+elif view == "Kansas City Royals":
+        st.dataframe(offense.loc['Kansas City Royals'])
+elif view == "Los Angeles Angels":
+        st.dataframe(offense.loc['Los Angeles Angels'])
+elif view == "Los Angeles Dodgers":
+        st.dataframe(offense.loc['Los Angeles Dodgers'])
+elif view == "Miama Marlins":
+        st.dataframe(offense.loc['Miama Marlins'])
+elif view == "Milwaukee Brewers":
+        st.dataframe(offense.loc['Milwaukee Brewers'])
+elif view == "Minnesota Twins":
+        st.dataframe(offense.loc['Minnesota Twins'])
+elif view == "New York Yankees":
+        st.dataframe(offense.loc['New York Yankees'])
+elif view == "New York Mets":
+        st.dataframe(offense.loc['New York Mets'])
+elif view == "Oakland Athletics":
+        st.dataframe(offense.loc['Oakland Athletics'])
+elif view == "Philadelphia Phillies":
+        st.dataframe(offense.loc['Philadelphia Phillies'])
+elif view == "Pittsburgh Pirates":
+        st.dataframe(offense.loc['Pittsburgh Pirates'])
+elif view == "San Diego Padres":
+        st.dataframe(offense.loc['San Diego Padres'])
+elif view == "San Francisco Giants":
+        st.dataframe(offense.loc['San Francisco Giants'])
+elif view == "Seattle Mariners":
+        st.dataframe(offense.loc['Seattle Mariners'])
+elif view == "St. Louis Cardinals":
+        st.dataframe(offense.loc['St. Louis Cardinals'])
+elif view =="Tampa Bay Rays":
+        st.dataframe(offense.loc['Tampa Bay Rays'])
+elif view == "Texas Rangers":
+        st.dataframe(offense.loc['Texas Rangers'])
+elif view == "Toronto Blue Jays":
+        st.dataframe(offense.loc['Toronto Blue Jays'])
+elif view == "Washington Nationals":
+        st.dataframe(offense.loc['Washington Nationals'])
+
+
+
+main()
