@@ -1,4 +1,6 @@
 # MA346_FINAL Project Report
+Link to Deepnote Dashboard: https://deepnote.com/@sean-mc11-de33/MA346-FINAL-PROJECT-3ff11cfc-8432-479d-8e59-6fb627488217
+
 Link to Project Dashboard: https://3e26a618-2b04-4fc1-acaa-7721d2c25fee.deepnoteproject.com/
 
 Analysis of MLB Regular Season Team Statistics
