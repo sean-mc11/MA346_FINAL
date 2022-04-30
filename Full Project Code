@@ -1,0 +1,216 @@
+import pandas as pd
+offense = pd.read_csv("Hitting Data.csv")
+defense = pd.read_csv("Pitching Data.csv")
+defense = defense.drop(columns=["G", "GS", "League"])
+
+statistics = pd.merge(offense, defense, on =['Team','Year'])
+statistics["Win_Percentage"] = (statistics['W']/statistics['Games']).round(4)
+
+
+from sklearn.model_selection import train_test_split
+statistics_train, statistics_test = train_test_split(statistics, test_size=0.30)
+
+from sklearn import linear_model
+import statsmodels.api as sm
+independent_columns = ['AB', 'RH', 'HH', '2BH', '3BH', 'HRH', 'RBIH', 'BBH', 'SOH', 'SBH', 'CSH', 'AVGH', 'OBPH', 'SLGH', 'OPSH', 'ERA', 'CG', 'SHO', 'SV', 'SVO', 'R', 'H', 'ER', 'HR', 'HB', 'BB', 'SO', 'WHIP', 'AVG']
+independent = statistics_train[independent_columns]
+dependent = statistics_train[['Win_Percentage']]
+
+independent = sm.add_constant(independent) 
+model = sm.OLS(dependent, independent).fit()
+predictions = model.predict(independent)
+
+
+print_model = model.summary()
+print(print_model)
+
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+vif_values= pd.DataFrame({'variables':independent_columns[1:], 'VIF':[variance_inflation_factor(independent.values, i+1) for i in range(len(independent_columns[1:]))]})
+vif_values
+
+statistics_train[independent_columns].corr()
+
+from sklearn import linear_model
+import statsmodels.api as sm
+import numpy as np
+newindependent_columns = ['AB', '2BH', '3BH', 'HRH', 'BBH', 'SOH', 'SBH', 'CSH', 'OBPH','SVO', 'SHO', 'H', 'CG', 'HB', 'BB', 'SO']
+newindependent = statistics_train[newindependent_columns]
+newdependent = statistics_train[['Win_Percentage']]
+
+newindependent = sm.add_constant(newindependent) 
+newmodel = sm.OLS(newdependent, newindependent).fit()
+newpredictions = newmodel.predict(newindependent)
+
+print_newmodel = newmodel.summary()
+print(print_newmodel)
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+vif_values= pd.DataFrame({'variables':newindependent_columns[1:], 'VIF':[variance_inflation_factor(newindependent.values, i+1) for i in range(len(newindependent_columns[1:]))]})
+vif_values
+
+
+coefficents = pd.DataFrame(newmodel.params)
+coefficents_tran = coefficents.transpose()
+
+atbat = pd.DataFrame(statistics_test['AB'])
+double = pd.DataFrame(statistics_test['2BH']) 
+triple = pd.DataFrame(statistics_test['3BH'])
+homerun = pd.DataFrame(statistics_test['HRH']) 
+hitwalk = pd.DataFrame(statistics_test['BBH']) 
+hitstrikeout = pd.DataFrame(statistics_test['SOH']) 
+stolebase = pd.DataFrame(statistics_test['SBH']) 
+caughtsteal = pd.DataFrame(statistics_test['CSH']) 
+onbase = pd.DataFrame(statistics_test['OBPH']) 
+svo =pd.DataFrame(statistics_test['SVO']) 
+sho = pd.DataFrame(statistics_test['SHO']) 
+hit = pd.DataFrame(statistics_test['H']) 
+complete = pd.DataFrame(statistics_test['CG']) 
+hbp = pd.DataFrame(statistics_test['HB']) 
+walk = pd.DataFrame(statistics_test['BB']) 
+strikeout = pd.DataFrame(statistics_test['SO']) 
+coefficents_tran['SO']*strikeout 
+constant = coefficents_tran['const'].min()
+atbats = coefficents_tran['AB'].min()
+a = atbat['AB'] * atbats
+doubles = coefficents_tran['2BH'].min()
+b = double['2BH'] * doubles
+triples = coefficents_tran['3BH'].min()
+c = triple['3BH'] * triples
+homeruns = coefficents_tran['HRH'].min()
+d = homerun['HRH'] * homeruns
+batwalks = coefficents_tran['BBH'].min()
+e = hitwalk['BBH'] * batwalks
+hitsos = coefficents_tran['SOH'].min()
+f = hitstrikeout['SOH'] * hitsos
+stolen = coefficents_tran['SBH'].min()
+g = stolebase['SBH'] * stolen
+caught = coefficents_tran['CSH'].min()
+h = caughtsteal['CSH'] * caught
+obp = coefficents_tran['OBPH'].min()
+i = onbase['OBPH'] * obp
+save = coefficents_tran['SVO'].min()
+j = svo['SVO'] * save
+shutout = coefficents_tran['SHO'].min()
+k = sho['SHO'] * shutout
+hits = coefficents_tran['H'].min()
+l = hit['H'] * hits
+game = coefficents_tran['CG'].min()
+m = complete['CG'] * game
+hitpitch = coefficents_tran['HB'].min()
+n = hbp['HB'] * hitpitch
+walkbatter = coefficents_tran['BB'].min()
+o = walk['BB'] * walkbatter
+strikeouts = coefficents_tran['SO'].min()
+p = strikeout['SO'] * strikeouts
+linear_model = pd.DataFrame(a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p).round(4)
+
+pred_act = linear_model.join(statistics_test['Win_Percentage'])
+pred_act = pred_act.rename(columns = {0:'Predicted'})
+pred_act
+
+from sklearn.metrics import mean_squared_error
+from math import sqrt
+
+rms = sqrt(mean_squared_error(pred_act['Win_Percentage'], pred_act['Predicted']))
+rms
+
+import seaborn as sns
+sns.histplot(newmodel.resid)
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy import stats
+mu, std = stats.norm.fit(newmodel.resid)
+mu, std
+fig, ax = plt.subplots()
+sns.histplot(x=newmodel.resid, ax=ax, stat="density", linewidth=0, kde=True)
+ax.set(title="Distribution of residuals", xlabel="residual")
+
+xmin, xmax = plt.xlim()
+x = np.linspace(xmin, xmax, 100) 
+p = stats.norm.pdf(x, mu, std) 
+sns.lineplot(x=x, y=p, color="orange", ax=ax)
+plt.show()
+
+import streamlit as st
+import numpy as np
+import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import pandas as pd
+
+offense = pd.read_csv("/work/Hitting Data.csv")
+offense.set_index('Team',inplace=True)
+
+def main():
+    df = offense
+    st.title("MLB Statistics Deep Dive")
+    st.header("Sean McLouglin and Katherine Noftall")
+    st.write("Let's checkout the teams' stats!")
+st.sidebar.header("Select your Team:")
+view = st.sidebar.selectbox("Which view would you like to see?",
+                                ("Arizona Diamondbacks", "Atlanta Braves", "Baltimore Orioles", "Boston Red Sox", "Chicago Cubs", "Chicago White Sox", "Cincinnati Reds", "Cleveland Indians", "Colorado Rockies", "Detroit Tigers", "Houston Astros", "Kansas City", "Los Angeles Angles", "Los Angeles Dodgers", "Miami Marlins", "Milwaukee Brewers", "Minnesota Twins", "New York Yankees", "New York Mets", "Oakland Athletics", "Philadelphia Phillies", "Pittsburgh Pirates", "San Diego Padres", "San Francisco Giants", "Seattle Mariners", "St. Louis Cardinals", "Tampa Bay Rays", "Texas Rangers", "Toronto Blue Jays", "Washington Nationals"))
+
+if view == "Arizona Diamondbacks":
+       st.dataframe(offense.loc['Arizona Diamondbacks'])
+elif view == "Atlanta Braves":
+       st.dataframe(offense.loc['Atlanta Braves'])
+elif view == "Baltimore Orioles":
+       st.dataframe(offense.loc['Baltimore Orioles'])
+elif view == "Boston Red Sox":
+        st.dataframe(offense.loc['Boston Red Sox'])
+elif view == "Chicago White Sox":
+        st.dataframe(offense.loc['Chicago White Sox'])
+elif view == "Chicago Cubs":
+        st.dataframe(offense.loc['Chicago Cubs'])
+elif view == "Cincinnati Reds":
+        st.dataframe(offense.loc['Cincinnati Reds'])
+elif view == "Cleveland Indians":
+        st.dataframe(offense.loc['Cleveland Indians'])
+elif view == "Colorado Rockies":
+        st.dataframe(offense.loc['Colorado Rockies'])
+elif view == "Detroit Tigers":
+        st.dataframe(offense.loc['Detroit Tigers'])
+elif view == "Houston Astros":
+        st.dataframe(offense.loc['Houston Astros'])
+elif view == "Kansas City Royals":
+        st.dataframe(offense.loc['Kansas City Royals'])
+elif view == "Los Angeles Angels":
+        st.dataframe(offense.loc['Los Angeles Angels'])
+elif view == "Los Angeles Dodgers":
+        st.dataframe(offense.loc['Los Angeles Dodgers'])
+elif view == "Miama Marlins":
+        st.dataframe(offense.loc['Miama Marlins'])
+elif view == "Milwaukee Brewers":
+        st.dataframe(offense.loc['Milwaukee Brewers'])
+elif view == "Minnesota Twins":
+        st.dataframe(offense.loc['Minnesota Twins'])
+elif view == "New York Yankees":
+        st.dataframe(offense.loc['New York Yankees'])
+elif view == "New York Mets":
+        st.dataframe(offense.loc['New York Mets'])
+elif view == "Oakland Athletics":
+        st.dataframe(offense.loc['Oakland Athletics'])
+elif view == "Philadelphia Phillies":
+        st.dataframe(offense.loc['Philadelphia Phillies'])
+elif view == "Pittsburgh Pirates":
+        st.dataframe(offense.loc['Pittsburgh Pirates'])
+elif view == "San Diego Padres":
+        st.dataframe(offense.loc['San Diego Padres'])
+elif view == "San Francisco Giants":
+        st.dataframe(offense.loc['San Francisco Giants'])
+elif view == "Seattle Mariners":
+        st.dataframe(offense.loc['Seattle Mariners'])
+elif view == "St. Louis Cardinals":
+        st.dataframe(offense.loc['St. Louis Cardinals'])
+elif view =="Tampa Bay Rays":
+        st.dataframe(offense.loc['Tampa Bay Rays'])
+elif view == "Texas Rangers":
+        st.dataframe(offense.loc['Texas Rangers'])
+elif view == "Toronto Blue Jays":
+        st.dataframe(offense.loc['Toronto Blue Jays'])
+elif view == "Washington Nationals":
+        st.dataframe(offense.loc['Washington Nationals'])
+
+
+
+main()
